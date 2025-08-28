@@ -19,9 +19,6 @@
   input[type="text"], input[type="password"] { padding:10px; width:250px; border-radius:8px; border:none; margin-bottom:15px; font-size:16px; outline:none; }
   button { padding:10px 20px; border-radius:8px; border:none; background: linear-gradient(to right,#0044cc,#ff0000); color:#fff; font-size:16px; cursor:pointer; transition:.3s; box-shadow:0 4px 8px rgba(0,0,0,.3); }
   button:hover { background: linear-gradient(to right,#ff0000,#0044cc); }
-  #formContainer { margin-top:30px; box-shadow:0 4px 15px rgba(0,0,0,.5); border-radius:12px; overflow:hidden; display:none; }
-  iframe { border-radius:12px; width:640px; height:800px; border:0; }
-  @media(max-width:700px){iframe{width:95%;height:700px;}}
   #timerContainer { position:fixed; top:20px; right:20px; background:rgba(0,0,0,.7); padding:10px 15px; border-radius:8px; font-size:1.2rem; font-weight:bold; display:none; z-index:1000; }
   #timer { color:#fff; }
 </style>
@@ -46,17 +43,10 @@
   <button id="startButton">Start</button>
 </div>
 
-<div id="formContainer">
-  <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScDH8ZQMFAC_jHVwxzf01NzhJnGOjhVC31NiziQiBpFaHgEXg/viewform?usp=header" title="ZDS Form">
-    Loading…
-  </iframe>
-</div>
-
 <script>
 const startButton = document.getElementById("startButton");
 const usernameInput = document.getElementById("username");
 const passwordInput = document.getElementById("password");
-const formContainer = document.getElementById("formContainer");
 const timerContainer = document.getElementById("timerContainer");
 const timerDisplay = document.getElementById("timer");
 
@@ -72,20 +62,20 @@ function startTimer(duration){
     minutes = minutes<10?"0"+minutes:minutes;
     seconds = seconds<10?"0"+seconds:seconds;
     timerDisplay.textContent = minutes+":"+seconds;
-    if(--timer<0){clearInterval(timerInterval);alert("Time's up! The form will now be closed.");window.location.reload();}
+    if(--timer<0){clearInterval(timerInterval);alert("Time's up! The form will now be closed."); window.location.reload();}
   },1000);
 }
 
-// Debug-ready Discord embed function
-function sendDiscordEmbed(username){
+// Open Google Form and send Discord embed via Apps Script
+function openFormAndNotify(username){
+  const formURL = "https://docs.google.com/forms/d/e/1FAIpQLScDH8ZQMFAC_jHVwxzf01NzhJnGOjhVC31NiziQiBpFaHgEXg/viewform?usp=header";
   const scriptURL = "https://script.google.com/macros/s/AKfycbwscDG6gThS6-WUNhevWyLtBOSSv6moY2Ltx47J_Fj5IalNkhAsZslx_zgWcwR9T7GezA/exec";
-  fetch(scriptURL + "?username=" + encodeURIComponent(username))
-    .then(response => {
-      console.log("Embed sent successfully:", response.status);
-    })
-    .catch(err => {
-      console.error("Error sending embed:", err);
-    });
+
+  // Open Google Form in new tab
+  window.open(formURL, "_blank");
+
+  // Open Apps Script Web App in new tab to send Discord embed
+  window.open(scriptURL + "?username=" + encodeURIComponent(username), "_blank");
 }
 
 startButton.addEventListener("click", ()=>{
@@ -94,13 +84,12 @@ startButton.addEventListener("click", ()=>{
   if(!username){alert("Please enter your username!"); return;}
   if(enteredPassword!==correctPassword){alert("Incorrect password!"); return;}
 
-  // Send on-open embed notification
-  sendDiscordEmbed(username);
-
-  formContainer.style.display = "block";
   timerContainer.style.display = "block";
   startTimer(totalTimeInSeconds);
+
+  openFormAndNotify(username);
 });
 </script>
+
 </body>
 </html>
