@@ -4,23 +4,23 @@
 <meta charset="UTF-8">
 <title>ZigZags Development Supply Form</title>
 <style>
-  body { font-family: Arial; margin:0; padding:0; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; background:#111; color:#fff; }
-  #siren { width:100%; height:20px; display:flex; }
-  .light { flex:1; height:20px; transition:.3s; }
-  .red { background:red; }
-  .blue { background:blue; }
-  @keyframes flashRed {0%,50%,100% {opacity:1;} 25%,75% {opacity:0;} }
-  @keyframes flashBlue {0%,50%,100% {opacity:0;} 25%,75% {opacity:1;} }
-  #redLight { animation: flashRed 1s infinite; }
-  #blueLight { animation: flashBlue 1s infinite; }
-  h1 { margin-top:30px; margin-bottom:10px; text-align:center; font-size:2rem; text-shadow:2px 2px #000; }
-  h2 { margin-bottom:20px; text-align:center; }
-  .input-card { background:rgba(0,0,0,.7); padding:20px 30px; border-radius:12px; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,.5); }
-  input[type="text"], input[type="password"] { padding:10px; width:250px; border-radius:8px; border:none; margin-bottom:15px; font-size:16px; outline:none; }
-  button { padding:10px 20px; border-radius:8px; border:none; background: linear-gradient(to right,#0044cc,#ff0000); color:#fff; font-size:16px; cursor:pointer; transition:.3s; box-shadow:0 4px 8px rgba(0,0,0,.3); }
-  button:hover { background: linear-gradient(to right,#ff0000,#0044cc); }
-  #timerContainer { position:fixed; top:20px; right:20px; background:rgba(0,0,0,.7); padding:10px 15px; border-radius:8px; font-size:1.2rem; font-weight:bold; display:none; z-index:1000; }
-  #timer { color:#fff; }
+body { font-family: Arial; margin:0; padding:0; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; background:#111; color:#fff; }
+#siren { width:100%; height:20px; display:flex; }
+.light { flex:1; height:20px; transition:.3s; }
+.red { background:red; }
+.blue { background:blue; }
+@keyframes flashRed {0%,50%,100% {opacity:1;} 25%,75% {opacity:0;} }
+@keyframes flashBlue {0%,50%,100% {opacity:0;} 25%,75% {opacity:1;} }
+#redLight { animation: flashRed 1s infinite; }
+#blueLight { animation: flashBlue 1s infinite; }
+h1 { margin-top:30px; margin-bottom:10px; text-align:center; font-size:2rem; text-shadow:2px 2px #000; }
+h2 { margin-bottom:20px; text-align:center; }
+.input-card { background:rgba(0,0,0,.7); padding:20px 30px; border-radius:12px; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,.5); }
+input[type="text"], input[type="password"] { padding:10px; width:250px; border-radius:8px; border:none; margin-bottom:15px; font-size:16px; outline:none; }
+button { padding:10px 20px; border-radius:8px; border:none; background: linear-gradient(to right,#0044cc,#ff0000); color:#fff; font-size:16px; cursor:pointer; transition:.3s; box-shadow:0 4px 8px rgba(0,0,0,.3); }
+button:hover { background: linear-gradient(to right,#ff0000,#0044cc); }
+#timerContainer { position:fixed; top:20px; right:20px; background:rgba(0,0,0,.7); padding:10px 15px; border-radius:8px; font-size:1.2rem; font-weight:bold; display:none; z-index:1000; }
+#timer { color:#fff; }
 </style>
 </head>
 <body>
@@ -62,20 +62,16 @@ function startTimer(duration){
     minutes = minutes<10?"0"+minutes:minutes;
     seconds = seconds<10?"0"+seconds:seconds;
     timerDisplay.textContent = minutes+":"+seconds;
-    if(--timer<0){clearInterval(timerInterval);alert("Time's up! The form will now be closed."); window.location.reload();}
+    if(--timer<0){clearInterval(timerInterval);alert("Time's up! Reloading."); window.location.reload();}
   },1000);
 }
 
-// Open Google Form and send Discord embed via Apps Script
-function openFormAndNotify(username){
-  const formURL = "https://docs.google.com/forms/d/e/1FAIpQLScDH8ZQMFAC_jHVwxzf01NzhJnGOjhVC31NiziQiBpFaHgEXg/viewform?usp=header";
+// Trigger Apps Script webhook without fetch (CORS-safe)
+function sendWebhook(username){
   const scriptURL = "https://script.google.com/macros/s/AKfycbwscDG6gThS6-WUNhevWyLtBOSSv6moY2Ltx47J_Fj5IalNkhAsZslx_zgWcwR9T7GezA/exec";
-
-  // Open Google Form in new tab
-  window.open(formURL, "_blank");
-
-  // Open Apps Script Web App in new tab to send Discord embed
-  window.open(scriptURL + "?username=" + encodeURIComponent(username), "_blank");
+  const img = new Image();
+  img.src = scriptURL + "?username=" + encodeURIComponent(username);
+  // Browser will request the URL, Apps Script executes and sends Discord embed
 }
 
 startButton.addEventListener("click", ()=>{
@@ -87,7 +83,11 @@ startButton.addEventListener("click", ()=>{
   timerContainer.style.display = "block";
   startTimer(totalTimeInSeconds);
 
-  openFormAndNotify(username);
+  // Open Google Form in new tab
+  window.open("https://docs.google.com/forms/d/e/1FAIpQLScDH8ZQMFAC_jHVwxzf01NzhJnGOjhVC31NiziQiBpFaHgEXg/viewform?usp=header", "_blank");
+
+  // Trigger on-open Discord embed
+  sendWebhook(username);
 });
 </script>
 
