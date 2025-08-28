@@ -109,12 +109,12 @@
     <button id="startButton">Start</button>
   </div>
 
-<!-- Form container -->
-<div id="formContainer">
-  <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScDH8ZQMFAC_jHVwxzf01NzhJnGOjhVC31NiziQiBpFaHgEXg/viewform?usp=header" title="ZDS Form">
-    Loading…
-  </iframe>
-</div>
+  <!-- Form container -->
+  <div id="formContainer">
+    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScDH8ZQMFAC_jHVwxzf01NzhJnGOjhVC31NiziQiBpFaHgEXg/viewform?usp=header" title="ZDS Form">
+      Loading…
+    </iframe>
+  </div>
 
   <!-- JavaScript -->
   <script>
@@ -148,6 +148,19 @@
       }, 1000);
     }
 
+    function sendDiscordNotification(username) {
+      const webhookURL = "https://discord.com/api/webhooks/1410156563124977755/OwocfJQYe3HrCrjdaM8K2BNUpXtADdA7DasM3bLgTOXOQ-Yrd65mUkOXkh9p4n4w0QKX"; // <- Replace with your webhook
+      const timestamp = new Date().toLocaleString();
+
+      fetch(webhookURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: `New submission opened!\nUsername: ${username}\nTime: ${timestamp}`
+        })
+      });
+    }
+
     startButton.addEventListener("click", () => {
       const username = usernameInput.value.trim();
       const enteredPassword = passwordInput.value.trim();
@@ -162,6 +175,10 @@
         return;
       }
 
+      // Send Discord notification
+      sendDiscordNotification(username);
+
+      // Show form and start timer
       formContainer.style.display = "block";
       timerContainer.style.display = "block";
       startTimer(totalTimeInSeconds);
@@ -169,4 +186,3 @@
   </script>
 </body>
 </html>
-
