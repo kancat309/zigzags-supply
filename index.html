@@ -21,6 +21,7 @@ button { padding:10px 20px; border-radius:8px; border:none; background: linear-g
 button:hover { background: linear-gradient(to right,#ff0000,#0044cc); }
 #timerContainer { position:fixed; top:20px; right:20px; background:rgba(0,0,0,.7); padding:10px 15px; border-radius:8px; font-size:1.2rem; font-weight:bold; display:none; z-index:1000; }
 #timer { color:#fff; }
+.hidden-iframe { display:none; }
 </style>
 </head>
 <body>
@@ -43,12 +44,16 @@ button:hover { background: linear-gradient(to right,#ff0000,#0044cc); }
   <button id="startButton">Start</button>
 </div>
 
+<!-- Hidden iframe for sending webhook -->
+<iframe id="webhookFrame" class="hidden-iframe"></iframe>
+
 <script>
 const startButton = document.getElementById("startButton");
 const usernameInput = document.getElementById("username");
 const passwordInput = document.getElementById("password");
 const timerContainer = document.getElementById("timerContainer");
 const timerDisplay = document.getElementById("timer");
+const webhookFrame = document.getElementById("webhookFrame");
 
 const correctPassword = '123@#$%ZDS';
 const totalTimeInSeconds = 30*60;
@@ -62,16 +67,14 @@ function startTimer(duration){
     minutes = minutes<10?"0"+minutes:minutes;
     seconds = seconds<10?"0"+seconds:seconds;
     timerDisplay.textContent = minutes+":"+seconds;
-    if(--timer<0){clearInterval(timerInterval);alert("Time's up! Reloading."); window.location.reload();}
+    if(--timer<0){clearInterval(timerInterval); alert("Time's up! Reloading."); window.location.reload();}
   },1000);
 }
 
-// Trigger Apps Script webhook without fetch (CORS-safe)
 function sendWebhook(username){
+  // Replace with your deployed Apps Script Web App exec URL
   const scriptURL = "https://script.google.com/macros/s/AKfycbwscDG6gThS6-WUNhevWyLtBOSSv6moY2Ltx47J_Fj5IalNkhAsZslx_zgWcwR9T7GezA/exec";
-  const img = new Image();
-  img.src = scriptURL + "?username=" + encodeURIComponent(username);
-  // Browser will request the URL, Apps Script executes and sends Discord embed
+  webhookFrame.src = scriptURL + "?username=" + encodeURIComponent(username);
 }
 
 startButton.addEventListener("click", ()=>{
@@ -83,10 +86,10 @@ startButton.addEventListener("click", ()=>{
   timerContainer.style.display = "block";
   startTimer(totalTimeInSeconds);
 
-  // Open Google Form in new tab
+  // Open Google Form in new tab (CSP-safe)
   window.open("https://docs.google.com/forms/d/e/1FAIpQLScDH8ZQMFAC_jHVwxzf01NzhJnGOjhVC31NiziQiBpFaHgEXg/viewform?usp=header", "_blank");
 
-  // Trigger on-open Discord embed
+  // Send Discord webhook via hidden iframe (bypasses CORS)
   sendWebhook(username);
 });
 </script>
