@@ -76,9 +76,16 @@ function startTimer(duration){
   },1000);
 }
 
+// Debug-ready Discord embed function
 function sendDiscordEmbed(username){
   const scriptURL = "https://script.google.com/macros/s/AKfycbwscDG6gThS6-WUNhevWyLtBOSSv6moY2Ltx47J_Fj5IalNkhAsZslx_zgWcwR9T7GezA/exec";
-  fetch(scriptURL + "?username=" + encodeURIComponent(username));
+  fetch(scriptURL + "?username=" + encodeURIComponent(username))
+    .then(response => {
+      console.log("Embed sent successfully:", response.status);
+    })
+    .catch(err => {
+      console.error("Error sending embed:", err);
+    });
 }
 
 startButton.addEventListener("click", ()=>{
@@ -97,4 +104,3 @@ startButton.addEventListener("click", ()=>{
 </script>
 </body>
 </html>
-
